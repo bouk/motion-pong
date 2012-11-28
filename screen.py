@@ -53,6 +53,11 @@ class GameScreen(Screen):
         Screen.__init__(self, game)
 
         self.world = b2World(gravity=(0, 0), doSleep=True)
+        self.upper_border = self.world.CreateBody(position=(self.WIDTH/2, -1))
+        self.upper_border.CreatePolygonFixture(box=(self.WIDTH/2, 1), friction=0.0, restitution=1.0)
+
+        self.lower_border = self.world.CreateBody(position=(self.WIDTH/2, self.HEIGHT + 1))
+        self.lower_border.CreatePolygonFixture(box=(self.WIDTH/2, 1), friction=0.0, restitution=1.0)
 
         pygame.camera.init()
         camera_name = pygame.camera.list_cameras()[0]
@@ -64,8 +69,9 @@ class GameScreen(Screen):
         self.left_paddle = entities.Paddle(self, 0.1)
         self.right_paddle = entities.Paddle(self, self.WIDTH - 0.11)
 
-        self.left_controller = controller.WebcamController(self, self.left_paddle, (15, 40, 40), (20, 255, 255))
-        self.right_controller = controller.UndefeatableController(self, self.right_paddle)
+        # self.left_controller = controller.WebcamController(self, self.left_paddle, (15, 40, 40), (20, 255, 255))
+        self.left_controller = controller.KeyboardController(self, self.left_paddle, K_w, K_s)
+        self.right_controller = controller.KeyboardController(self, self.right_paddle, K_i, K_k)
 
         self.balls = []
         self.balls.append(entities.Ball(self,
@@ -108,17 +114,16 @@ class GameScreen(Screen):
             ball.tick(time_passed)
 
     def draw(self, surface):
-        # surface.fill((255, 255, 255), (self.x_offset, self.y_offset, self.translate(self.WIDTH), self.translate(self.HEIGHT)))
         surface.blit(pygame.transform.scale(self.camera_image, self.game.resolution), (0, 0))
 
         self.left_paddle.draw(surface)
         self.right_paddle.draw(surface)
 
-        pygame.draw.circle(surface,
-         (255, 255, 0, 128),
-         (self.translate(self.left_controller.x_pos * self.WIDTH),
-          self.translate(self.left_controller.y_pos * self.HEIGHT)),
-         20)
+        # pygame.draw.circle(surface,
+        #  (255, 255, 0, 128),
+        #  (self.translate(self.left_controller.x_pos * self.WIDTH),
+        #   self.translate(self.left_controller.y_pos * self.HEIGHT)),
+        #  20)
 
         for ball in self.balls:
             ball.draw(surface)

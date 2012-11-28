@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from Box2D import *
 import pygame
 
 class Controller(object):
@@ -19,6 +20,7 @@ class UndefeatableController(Controller):
 class KeyboardController(Controller):
 
     SPEED = 1.0
+    FORCE = 10
 
     def __init__(self, screen, paddle, key_up, key_down):
         Controller.__init__(self, screen, paddle)
@@ -27,10 +29,11 @@ class KeyboardController(Controller):
 
     def tick(self, time_passed):
         if pygame.key.get_pressed()[self.key_up]:
-            pass
-
-        if pygame.key.get_pressed()[self.key_down]:
-            pass
+            self.paddle.body.linearVelocity = b2Vec2(0, -self.FORCE)
+        elif pygame.key.get_pressed()[self.key_down]:
+            self.paddle.body.linearVelocity = b2Vec2(0, self.FORCE)
+        else:
+            self.paddle.body.linearVelocity = b2Vec2(0, 0)
 
         Controller.tick(self, time_passed)
 
