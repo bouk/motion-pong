@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from Box2D import *
 import pygame
 import pygame.camera
 from pygame.locals import *
@@ -42,14 +43,16 @@ class GameScreen(Screen):
 
     # Official ping pong table size
     # 108 inch long by 60 inch wide
-    WIDTH = float(2.743)
-    HEIGHT = float(1.524)
+    WIDTH = float(27.43)
+    HEIGHT = float(15.24)
 
     WEBCAM_RESOLUTION = (640, 480)
     WEBCAM_SCALED_RESOLUTION = (128, 96)
 
     def __init__(self, game):
         Screen.__init__(self, game)
+
+        self.world = b2World(gravity=(0, 0), doSleep=True)
 
         pygame.camera.init()
         camera_name = pygame.camera.list_cameras()[0]
@@ -66,8 +69,8 @@ class GameScreen(Screen):
 
         self.balls = []
         self.balls.append(entities.Ball(self,
-             x=self.WIDTH / 2 - entities.Ball.WIDTH,
-             y=self.HEIGHT / 2 - entities.Ball.WIDTH))
+             x=self.WIDTH / 2 - entities.Ball.RADIUS,
+             y=self.HEIGHT / 2 - entities.Ball.RADIUS))
 
         # Calculate screen ratio and compare it with the size of the table to determine table position on screen
         screen_ratio = float(game.resolution[0]) / game.resolution[1]
@@ -89,6 +92,7 @@ class GameScreen(Screen):
 
     def tick(self, time_passed):
         Screen.tick(self, time_passed)
+
         if self.ticks % 2 == 0:
             self.camera_image = pygame.transform.flip(self.camera.get_image(), True, False)
             pygame.transform.smoothscale(self.camera_image,
@@ -97,6 +101,8 @@ class GameScreen(Screen):
 
         self.left_controller.tick(time_passed)
         self.right_controller.tick(time_passed)
+
+        self.world.Step(1.0/60.0, 10, 2)
 
         for ball in self.balls[:]:
             ball.tick(time_passed)

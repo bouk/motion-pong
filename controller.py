@@ -9,17 +9,12 @@ class Controller(object):
         self.paddle = paddle
 
     def tick(self, time_passed):
-        if self.paddle.y < 0:
-            self.paddle.y = 0
-
-        if self.paddle.y + self.paddle.height > self.screen.HEIGHT:
-            self.paddle.y = self.screen.HEIGHT - self.paddle.height
+        pass
 
 class UndefeatableController(Controller):
 
     def tick(self, time_passed):
-        self.paddle.y = self.screen.balls[0].y
-
+        pass
 
 class KeyboardController(Controller):
 
@@ -32,10 +27,10 @@ class KeyboardController(Controller):
 
     def tick(self, time_passed):
         if pygame.key.get_pressed()[self.key_up]:
-            self.paddle.y -= time_passed * KeyboardController.SPEED
+            pass
 
         if pygame.key.get_pressed()[self.key_down]:
-            self.paddle.y += time_passed * KeyboardController.SPEED
+            pass
 
         Controller.tick(self, time_passed)
 
@@ -68,4 +63,4 @@ class WebcamController(Controller):
         if self.count:
             self.x_pos = float(self.x_pos) / self.count / self.screen.WEBCAM_SCALED_RESOLUTION[0]
             self.y_pos = float(self.y_pos) / self.count / self.screen.WEBCAM_SCALED_RESOLUTION[1]
-            self.paddle.y = self.y_pos * self.screen.HEIGHT
+            # self.paddle.y = self.y_pos * self.screen.HEIGHT
