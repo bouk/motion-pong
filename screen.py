@@ -43,8 +43,8 @@ class GameScreen(Screen):
 
     # Official ping pong table size
     # 108 inch long by 60 inch wide
-    WIDTH = float(27.43)
-    HEIGHT = float(15.24)
+    WIDTH = 27.43
+    HEIGHT = 15.24
 
     WEBCAM_RESOLUTION = (640, 480)
     WEBCAM_SCALED_RESOLUTION = (128, 96)
@@ -53,11 +53,11 @@ class GameScreen(Screen):
         Screen.__init__(self, game)
 
         self.world = b2World(gravity=(0, 0), doSleep=True)
-        self.upper_border = self.world.CreateBody(position=(self.WIDTH/2, -1))
-        self.upper_border.CreatePolygonFixture(box=(self.WIDTH/2, 1), friction=0.0, restitution=1.0)
+        self.upper_border = self.world.CreateBody(position=(self.WIDTH / 2, -1))
+        self.upper_border.CreatePolygonFixture(box=(self.WIDTH / 2, 1), friction=0.0, restitution=1.0)
 
-        self.lower_border = self.world.CreateBody(position=(self.WIDTH/2, self.HEIGHT + 1))
-        self.lower_border.CreatePolygonFixture(box=(self.WIDTH/2, 1), friction=0.0, restitution=1.0)
+        self.lower_border = self.world.CreateBody(position=(self.WIDTH / 2, self.HEIGHT + 1))
+        self.lower_border.CreatePolygonFixture(box=(self.WIDTH / 2, 1), friction=0.0, restitution=1.0)
 
         pygame.camera.init()
         camera_name = pygame.camera.list_cameras()[0]
@@ -73,10 +73,7 @@ class GameScreen(Screen):
         self.left_controller = controller.KeyboardController(self, self.left_paddle, K_w, K_s)
         self.right_controller = controller.KeyboardController(self, self.right_paddle, K_i, K_k)
 
-        self.balls = []
-        self.balls.append(entities.Ball(self,
-             x=self.WIDTH / 2 - entities.Ball.RADIUS,
-             y=self.HEIGHT / 2 - entities.Ball.RADIUS))
+        self.balls = [entities.Ball(self, x=self.WIDTH / 2 - entities.Ball.RADIUS, y=self.HEIGHT / 2 - entities.Ball.RADIUS)]
 
         # Calculate screen ratio and compare it with the size of the table to determine table position on screen
         screen_ratio = float(game.resolution[0]) / game.resolution[1]

@@ -30,7 +30,7 @@ class Ball(object):
     def __init__(self, screen, x, y):
         self.screen = screen
         self.body = screen.world.CreateDynamicBody(position=(x, y), bullet=True)
-        self.body.CreateCircleFixture(radius=self.RADIUS, friction=0.1, restitution=1.0, density=2.0)
+        self.body.CreateCircleFixture(radius=self.RADIUS, friction=1.0, restitution=1.0, density=2.0)
         self.body.ApplyLinearImpulse(self.STARTING_VELOCITY, self.body.worldCenter)
 
     def draw(self, surface):
