@@ -2,6 +2,7 @@
 
 from Box2D import *
 import pygame
+import cv
 
 class Controller(object):
 
@@ -49,21 +50,22 @@ class WebcamController(Controller):
         self.count = 0
 
     def tick(self, time_passed):
-        self.x_pos = 0
-        self.y_pos = 0
-        self.count = 0
+        pass
+        # self.x_pos = 0
+        # self.y_pos = 0
+        # self.count = 0
 
-        for x in xrange(self.screen.WEBCAM_SCALED_RESOLUTION[0]):
-            for y in xrange(self.screen.WEBCAM_SCALED_RESOLUTION[1]):
-                h, s, v, a = self.screen.scaled_camera_image.get_at((x, y)).hsva
-                if (self.bottom_hsv[0] < h < self.top_hsv[0]
-                 and self.bottom_hsv[1] < s < self.top_hsv[1]
-                 and self.bottom_hsv[2] < v < self.top_hsv[2]):
-                    self.x_pos += x
-                    self.y_pos += y
-                    self.count += 1
+        # for x in xrange(self.screen.WEBCAM_SCALED_RESOLUTION[0]):
+        #     for y in xrange(self.screen.WEBCAM_SCALED_RESOLUTION[1]):
+        #         h, s, v, a = self.screen.scaled_camera_image.get_at((x, y)).hsva
+        #         if (self.bottom_hsv[0] < h < self.top_hsv[0]
+        #          and self.bottom_hsv[1] < s < self.top_hsv[1]
+        #          and self.bottom_hsv[2] < v < self.top_hsv[2]):
+        #             self.x_pos += x
+        #             self.y_pos += y
+        #             self.count += 1
 
-        if self.count:
-            self.x_pos = float(self.x_pos) / self.count / self.screen.WEBCAM_SCALED_RESOLUTION[0]
-            self.y_pos = float(self.y_pos) / self.count / self.screen.WEBCAM_SCALED_RESOLUTION[1]
-            # self.paddle.y = self.y_pos * self.screen.HEIGHT
+        # if self.count:
+        #     self.x_pos = float(self.x_pos) / self.count / self.screen.WEBCAM_SCALED_RESOLUTION[0]
+        #     self.y_pos = float(self.y_pos) / self.count / self.screen.WEBCAM_SCALED_RESOLUTION[1]
+        #     # self.paddle.y = self.y_pos * self.screen.HEIGHT

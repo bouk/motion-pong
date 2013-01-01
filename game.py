@@ -7,18 +7,21 @@ import screen
 
 class Game(object):
 
-    FPS = 60
+    FPS = 30
 
     def __init__(self):
         pygame.init()
         self.resolution = pygame.display.list_modes()[0]
-        self.screen = screen.GameScreen(self)
+        self.screen = None
 
     def main(self):
-        self.display = pygame.display.set_mode(self.resolution, pygame.FULLSCREEN)
+        self.display = pygame.display.set_mode(self.resolution) # , pygame.FULLSCREEN
         self.clock = pygame.time.Clock()
 
         running = True
+        self.font = pygame.font.SysFont("monospace", 15)
+        self.screen = screen.GameScreen(self)
+        self.screen.start()
         while running:
             for event in pygame.event.get():
                 if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
@@ -28,8 +31,11 @@ class Game(object):
             time_passed = float(self.clock.tick(self.FPS)) / 1000
             self.screen.tick(time_passed)
 
-            self.display.fill((0, 0, 0))
+            self.display.fill((255, 255, 255))
             self.screen.draw(self.display)
+
+            text = self.font.render(str(self.clock.get_fps()), 1, (255,255,0))
+            self.display.blit(text, (100, 100))
             pygame.display.update()
 
         self.screen.quit()

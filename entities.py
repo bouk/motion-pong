@@ -23,7 +23,6 @@ class Paddle(object):
 
 class Ball(object):
 
-    # Official ping pong ball size 40 mm
     RADIUS = 0.5
     STARTING_VELOCITY = b2Vec2(10, 10)
 
@@ -32,15 +31,23 @@ class Ball(object):
         self.body = screen.world.CreateDynamicBody(position=(x, y), bullet=True)
         self.body.CreateCircleFixture(radius=self.RADIUS, friction=1.0, restitution=1.0, density=2.0)
         self.body.ApplyLinearImpulse(self.STARTING_VELOCITY, self.body.worldCenter)
+        self.body.angularDamping = 1
+        self.body.angularVelocity = 20
+
+        self.image = pygame.image.load('images/ball.png')
+        self.image = self.image.convert_alpha()
+        self.image = pygame.transform.smoothscale(self.image, (self.screen.translate(self.RADIUS * 2), self.screen.translate(self.RADIUS * 2)))
 
     def draw(self, surface):
-        pygame.draw.circle(surface, (255, 0, 0), self.screen.translatexy(self.body.position[0], self.body.position[1]), self.screen.translate(self.RADIUS))
+        angle = util.rad_to_deg(self.body.angle)
+        rotated_image = pygame.transform.rotate(self.image, angle)
+        position = map(lambda x: x - rotated_image.get_width() / 2, self.screen.translatexy(self.body.position[0], self.body.position[1]))
 
-    def get_rect(self):
-        return ((self.body.position[0] - self.RADIUS, self.body.position[1] - self.RADIUS), (self.RADIUS*2, self.RADIUS*2))
+        surface.blit(rotated_image, position)
 
     def tick(self, time_passed):
         if self.body.position[0] - self.RADIUS > self.screen.WIDTH or self.body.position[0] + self.RADIUS < 0:
             self.body.transform = (b2Vec2(self.screen.WIDTH/2, self.screen.HEIGHT/2), 0)
             self.body.linearVelocity = b2Vec2(0, 0)
+            self.body.angularVelocity = 0
             self.body.ApplyLinearImpulse(self.STARTING_VELOCITY, self.body.worldCenter)
