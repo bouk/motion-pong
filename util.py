@@ -2,6 +2,7 @@
 import cv
 import math
 import numpy
+from operator import itemgetter
 import pygame.image
 import threading
 import time
@@ -38,8 +39,7 @@ class CameraThread(threading.Thread):
             self.opencv_image = cv.QueryFrame(self.camera)
             cv.Flip(self.opencv_image, self.opencv_image, 1)
 
-            with self.lock:
-                self.camera_image = cv_to_pygame_surface(self.opencv_image)
+            self.camera_image = cv_to_pygame_surface(self.opencv_image)
 
             self.recalc = (self.recalc + 1) % 4
             if self.recalc == 0:
@@ -53,11 +53,10 @@ class CameraThread(threading.Thread):
 
                 cv.HoughCircles(self.gray_opencv_image, storage, cv.CV_HOUGH_GRADIENT, 2, self.gray_opencv_image.width/2, 200, 100)
 
-                with self.lock:
-                    if storage.rows > 0:
-                        self.circles = map(lambda a: (int(a[0][0] / self.scale), int(a[0][1] / self.scale), int(a[0][2] / self.scale)), numpy.asarray(storage))
-                    else:
-                        self.circles = list()
+                if storage.rows > 0:
+                    self.circles = sorted(map(lambda a: (int(a[0][0] / self.scale), int(a[0][1] / self.scale), int(a[0][2] / self.scale)), numpy.asarray(storage)), key=itemgetter(2), reverse=True)
+                else:
+                    self.circles = list()
 
     def stop(self):
         self.running = False

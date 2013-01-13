@@ -4,6 +4,7 @@ from Box2D import *
 import pygame
 import cv
 from pygame.locals import *
+import os
 
 import controller
 import entities
@@ -21,9 +22,6 @@ class Screen(object):
     def draw(self, surface):
         raise NotImplementedError()
 
-    def start(self):
-        pass
-
     def quit(self):
         pass
 
@@ -32,12 +30,84 @@ class MenuScreen(Screen):
 
     def __init__(self, game):
         Screen.__init__(self, game)
+        self.selected = 0
+        def startgame(menu):
+            menu.game.screen = GameScreen(menu.game)
+            pygame.mixer.music.stop()
+
+        def quitgame(menu):
+            menu.game.running = False
+
+        self.menu_items = [{'text': "Start", 'command': startgame}, {'text': "Quit", 'command': quitgame}]
+        self.font = pygame.font.SysFont("monospace", 30)
+        self.logo = pygame.image.load(os.path.join(game.IMAGE_DIR, 'logo.png'))
+        self.logo = self.logo.convert_alpha()
+        self.menu_backdrop = pygame.image.load(os.path.join(game.IMAGE_DIR, 'menu_backdrop.png'))
+        self.menu_backdrop = self.menu_backdrop.convert_alpha()
+
+        self.kioskscreen = KioskGameScreen(game)
+        pygame.mixer.music.load(os.path.join(game.MUSIC_DIR, 'menu.mp3'))
+        pygame.mixer.music.play(-1)
 
     def tick(self, time_passed):
-        pass
+        self.kioskscreen.tick(time_passed)
+
+        if self.game.just_held(K_DOWN):
+            self.selected = (self.selected + 1) % len(self.menu_items)
+
+        if self.game.just_held(K_UP):
+            self.selected = (self.selected + len(self.menu_items) - 1) % len(self.menu_items)
+
+        if self.game.just_held(K_RETURN) or self.game.just_held(K_KP_ENTER):
+            self.menu_items[self.selected]['command'](self)
 
     def draw(self, surface):
-        pass
+        self.kioskscreen.draw(surface)
+
+        ypos = 0
+        surface.blit(self.logo, (surface.get_width() / 2 - self.logo.get_width() / 2, ypos))
+
+        ypos += self.logo.get_height() + 10
+
+        for key, item in enumerate(self.menu_items):
+            position = (surface.get_width() / 2 - self.menu_backdrop.get_width() / 2, ypos)
+            surface.blit(self.menu_backdrop, position)
+
+            color = (255, 255, 255)
+            text = str(item['text'])
+            if key == self.selected:
+                color =  (255, 255, 0)
+                text = '> ' + text + ' <'
+
+            text = self.font.render(text, True, color)
+            position = (surface.get_width() / 2 - text.get_width() / 2, ypos + self.menu_backdrop.get_height() / 2 - text.get_height() / 2)
+            surface.blit(text, position)
+
+            ypos += self.menu_backdrop.get_height() + 10
+
+    def quit(self):
+        self.kioskscreen.quit()
+
+
+class TextScreen(Screen):
+
+    def __init__(self, game, text):
+        Screen.__init__(self, game)
+        self.text = text
+        self.font = pygame.font.SysFont('monospace', 50)
+        self.time = 0.0
+
+    def draw(self, surface):
+        surface.fill((0, 0, 0))
+        image = self.font.render(self.text + " " + str(int(5 - self.time)), True, (255, 255, 0))
+        position = (surface.get_width() / 2 - image.get_width() / 2, surface.get_height() / 2 - image.get_height() / 2)
+        surface.blit(image, position)
+
+    def tick(self, time_passed):
+        if self.time > 5.0:
+            self.game.screen = MenuScreen(self.game)
+
+        self.time += time_passed
 
 
 class GameScreen(Screen):
@@ -50,8 +120,7 @@ class GameScreen(Screen):
     WIDTH = 27.43
     HEIGHT = 15.24
 
-    WEBCAM_RESOLUTION = (1280, 720)
-    WEBCAM_SCALE = 0.5
+    START_HEALTH = 4
 
     def __init__(self, game):
         Screen.__init__(self, game)
@@ -78,24 +147,15 @@ class GameScreen(Screen):
         self.lower_border = self.world.CreateBody(position=(self.WIDTH / 2, self.HEIGHT + 1))
         self.lower_border.CreatePolygonFixture(box=(self.WIDTH / 2, 1), friction=0.0, restitution=1.0)
 
-        # Initialise camera
-        self.camera_thread = util.CameraThread(self.WEBCAM_RESOLUTION, self.WEBCAM_SCALE)
-        # self.camera_thread.start()
-
         self.left_paddle = entities.Paddle(self, 0.1)
-        self.right_paddle = entities.Paddle(self, self.WIDTH - 0.11)
+        self.right_paddle = entities.Paddle(self, self.WIDTH - 0.11, mirror=True)
 
-        # self.left_controller = controller.WebcamController(self, self.left_paddle, (15, 40, 40), (20, 255, 255))
         self.left_controller = controller.KeyboardController(self, self.left_paddle, K_w, K_s)
         self.right_controller = controller.KeyboardController(self, self.right_paddle, K_i, K_k)
 
+        self.left_health = self.right_health = self.START_HEALTH
+
         self.balls = [entities.Ball(self, x=self.WIDTH / 2 - entities.Ball.RADIUS, y=self.HEIGHT / 2 - entities.Ball.RADIUS)]
-
-    def start(self):
-        self.camera_thread.start()
-
-    def quit(self):
-        self.camera_thread.stop()
 
     def tick(self, time_passed):
         Screen.tick(self, time_passed)
@@ -109,22 +169,13 @@ class GameScreen(Screen):
             ball.tick(time_passed)
 
     def draw(self, surface):
-        with self.camera_thread.lock:
-            surface.blit(pygame.transform.scale(self.camera_thread.camera_image, self.game.resolution), (0, 0))
+        surface.blit(pygame.transform.scale(self.game.camera_thread.camera_image, self.game.resolution), (0, 0))
 
-            for circle in self.camera_thread.circles:
-                pygame.draw.circle(surface, (255, 255, 0, 128), (circle[0], circle[1]), circle[2])
+        for circle in self.game.camera_thread.circles:
+            pygame.draw.circle(surface, (255, 255, 0, 128), (circle[0], circle[1]), circle[2])
 
         self.left_paddle.draw(surface)
         self.right_paddle.draw(surface)
-
-
-
-        # pygame.draw.circle(surface,
-        #  (255, 255, 0, 128),
-        #  (self.translate(self.left_controller.x_pos * self.WIDTH),
-        #   self.translate(self.left_controller.y_pos * self.HEIGHT)),
-        #  20)
 
         for ball in self.balls:
             ball.draw(surface)
@@ -140,3 +191,24 @@ class GameScreen(Screen):
 
     def translate(self, value):
         return int(value * self.pixel_to_meter_ratio)
+
+    def health_changed(self):
+        if self.left_health <= 0:
+            self.game.screen = TextScreen(self.game, "Right player won!")
+        elif self.right_health <= 0:
+            self.game.screen = TextScreen(self.game, "Left player won!")
+
+
+class KioskGameScreen(GameScreen):
+
+    def __init__(self, game):
+        GameScreen.__init__(self, game)
+        self.left_controller = controller.UndefeatableController(self, self.left_paddle)
+        self.right_controller = controller.UndefeatableController(self, self.right_paddle)
+
+        for ball in self.balls:
+            for fix in ball.body.fixtures:
+                fix.restitution = 1.3
+
+    def health_changed(self):
+        pass

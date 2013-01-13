@@ -16,7 +16,8 @@ class Controller(object):
 class UndefeatableController(Controller):
 
     def tick(self, time_passed):
-        pass
+        if len(self.screen.balls) > 0:
+            self.paddle.body.transform = (b2Vec2(self.paddle.body.position[0], self.screen.balls[0].body.position[1]), 0)
 
 class KeyboardController(Controller):
 
