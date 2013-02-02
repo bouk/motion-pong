@@ -46,7 +46,7 @@ class CameraThread(threading.Thread):
                 cv.Resize(self.opencv_image, self.scaled_opencv_image, cv.CV_INTER_LINEAR)
                 cv.CvtColor(self.scaled_opencv_image, self.scaled_opencv_image, cv.CV_BGR2HSV)
 
-                cv.InRangeS(self.scaled_opencv_image, hsv_to_scalar(210, 0.70, 0.50), hsv_to_scalar(225, 0.95, 1), self.gray_opencv_image)
+                cv.InRangeS(self.scaled_opencv_image, hsv_to_scalar(215, 0.50, 0.10), hsv_to_scalar(225, 0.90, 0.5), self.gray_opencv_image)
                 cv.Smooth(self.gray_opencv_image, self.gray_opencv_image, cv.CV_GAUSSIAN, 9, 9)
                 cv.Canny(self.gray_opencv_image, self.gray_opencv_image, 50, 200, 3)
                 storage = cv.CreateMat(self.scaled_opencv_image.width, 1, cv.CV_32FC3)

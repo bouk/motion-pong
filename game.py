@@ -30,7 +30,7 @@ class Game(object):
         self.camera_thread.start()
 
     def main(self):
-        self.display = pygame.display.set_mode(self.resolution) # , pygame.FULLSCREEN
+        self.display = pygame.display.set_mode(self.resolution, pygame.FULLSCREEN)
         self.clock = pygame.time.Clock()
 
         self.running = True

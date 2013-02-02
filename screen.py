@@ -38,7 +38,7 @@ class MenuScreen(Screen):
         def quitgame(menu):
             menu.game.running = False
 
-        self.menu_items = [{'text': "Start", 'command': startgame}, {'text': "Quit", 'command': quitgame}]
+        self.menu_items = [{'text': "1 Player", 'command': startgame}, {'text': "2 Player", 'command': startgame}, {'text': "Quit", 'command': quitgame}]
         self.font = pygame.font.SysFont("monospace", 30)
         self.logo = pygame.image.load(os.path.join(game.IMAGE_DIR, 'logo.png'))
         self.logo = self.logo.convert_alpha()
@@ -83,7 +83,7 @@ class MenuScreen(Screen):
             position = (surface.get_width() / 2 - text.get_width() / 2, ypos + self.menu_backdrop.get_height() / 2 - text.get_height() / 2)
             surface.blit(text, position)
 
-            ypos += self.menu_backdrop.get_height() + 10
+            ypos += self.menu_backdrop.get_height()
 
     def quit(self):
         self.kioskscreen.quit()
