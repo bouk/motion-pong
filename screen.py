@@ -31,14 +31,37 @@ class MenuScreen(Screen):
     def __init__(self, game):
         Screen.__init__(self, game)
         self.selected = 0
-        def startgame(menu):
-            menu.game.screen = GameScreen(menu.game)
+
+        def multiplayer(menu):
+            menu.game.screen = RegularGameScreen(menu.game)
+            menu.game.screen.left_controller = controller.KeyboardController(menu.game.screen, menu.game.screen.left_paddle, K_w, K_s)
+            menu.game.screen.right_controller = controller.KeyboardController(menu.game.screen, menu.game.screen.right_paddle, K_i, K_k)
+            pygame.mixer.music.stop()
+
+        def singleplayer(menu):
+            menu.game.screen = RegularGameScreen(menu.game)
+            menu.game.screen.left_controller = controller.KeyboardController(menu.game.screen, menu.game.screen.left_paddle, K_w, K_s)
+            menu.game.screen.right_controller = controller.UndefeatableController(menu.game.screen)
             pygame.mixer.music.stop()
 
         def quitgame(menu):
             menu.game.running = False
 
-        self.menu_items = [{'text': "1 Player", 'command': startgame}, {'text': "2 Player", 'command': startgame}, {'text': "Quit", 'command': quitgame}]
+        self.menu_items = [
+        {
+            'text': "1 Player",
+            'command': singleplayer
+        },
+        {
+            'text': "2 Player",
+            'command': multiplayer
+        },
+        {
+            'text': "Quit",
+            'command': quitgame
+        }
+        ]
+
         self.font = pygame.font.SysFont("monospace", 30)
         self.logo = pygame.image.load(os.path.join(game.IMAGE_DIR, 'logo.png'))
         self.logo = self.logo.convert_alpha()
@@ -112,7 +135,7 @@ class TextScreen(Screen):
 
 class GameScreen(Screen):
     '''
-    This screen is at the top of a game, managing the paddles, balls and webcam
+    This screen is manages the paddles, balls and webcam
     '''
 
     # Official ping pong table size
@@ -150,12 +173,13 @@ class GameScreen(Screen):
         self.left_paddle = entities.Paddle(self, 0.1)
         self.right_paddle = entities.Paddle(self, self.WIDTH - 0.11, mirror=True)
 
-        self.left_controller = controller.KeyboardController(self, self.left_paddle, K_w, K_s)
-        self.right_controller = controller.KeyboardController(self, self.right_paddle, K_i, K_k)
-
         self.left_health = self.right_health = self.START_HEALTH
 
-        self.balls = [entities.Ball(self, x=self.WIDTH / 2 - entities.Ball.RADIUS, y=self.HEIGHT / 2 - entities.Ball.RADIUS)]
+        self.balls = [
+            entities.Ball(self,
+                x=self.WIDTH / 2 - entities.Ball.RADIUS,
+                y=self.HEIGHT / 2 - entities.Ball.RADIUS)
+        ]
 
     def tick(self, time_passed):
         Screen.tick(self, time_passed)
@@ -169,10 +193,17 @@ class GameScreen(Screen):
             ball.tick(time_passed)
 
     def draw(self, surface):
-        surface.blit(pygame.transform.scale(self.game.camera_thread.camera_image, self.game.resolution), (0, 0))
+        surface.blit(
+            pygame.transform.scale(
+                self.game.camera_thread.camera_image,
+                self.game.resolution),
+            (0, 0))
 
         for circle in self.game.camera_thread.circles:
-            pygame.draw.circle(surface, (255, 255, 0, 128), (circle[0], circle[1]), circle[2])
+            pygame.draw.circle(surface,
+                (255, 255, 0, 128),
+                (circle[0], circle[1]),
+                circle[2])
 
         self.left_paddle.draw(surface)
         self.right_paddle.draw(surface)
@@ -187,10 +218,32 @@ class GameScreen(Screen):
         return (self.translatexy(x, y), (self.translate(w), self.translate(h)))
 
     def translate_rect(self, rect):
-        return self.translate_xy_width_height(rect[0][0], rect[0][1], rect[1][0], rect[1][1])
+        return self.translate_xy_width_height(
+                rect[0][0],
+                rect[0][1],
+                rect[1][0],
+                rect[1][1])
 
     def translate(self, value):
         return int(value * self.pixel_to_meter_ratio)
+
+    def health_changed(self):
+        pass
+
+
+class RegularGameScreen(GameScreen):
+
+    def draw(self, surface):
+        GameScreen.draw(self, surface)
+
+        # Draw UI
+        left_health_ratio = self.left_health / float(self.START_HEALTH)
+        left_health_width = left_health_ratio * 300
+        right_health_ratio = self.right_health / float(self.START_HEALTH)
+        right_health_width = right_health_ratio * 300
+
+        surface.fill((255, 0, 0), (0, self.game.resolution[1] - 100, left_health_width, 40))
+        surface.fill((255, 0, 0), (self.game.resolution[0] - right_health_width, self.game.resolution[1] - 100, right_health_width, 40))
 
     def health_changed(self):
         if self.left_health <= 0:
@@ -205,10 +258,3 @@ class KioskGameScreen(GameScreen):
         GameScreen.__init__(self, game)
         self.left_controller = controller.UndefeatableController(self, self.left_paddle)
         self.right_controller = controller.UndefeatableController(self, self.right_paddle)
-
-        for ball in self.balls:
-            for fix in ball.body.fixtures:
-                fix.restitution = 1.3
-
-    def health_changed(self):
-        pass

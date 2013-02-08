@@ -16,7 +16,7 @@ class CameraThread(threading.Thread):
         self.circles = list()
         self.scale = scale
         self.scaled_resolution = map(lambda n: int(n * self.scale), self.resolution)
-        print self.scaled_resolution
+        print "Camera resolution:", self.scaled_resolution
         self.lock = threading.Lock()
 
         self.camera = cv.CaptureFromCAM(-1)
@@ -30,6 +30,9 @@ class CameraThread(threading.Thread):
         self.scaled_opencv_image = cv.CreateImage(self.scaled_resolution, 8, 3)
         self.gray_opencv_image = cv.CreateImage(cv.GetSize(self.scaled_opencv_image), 8, 1)
         self.recalc = 0
+
+        self.lower_bound = hsv_to_scalar(215, 0.50, 0.10)
+        self.upper_bound = hsv_to_scalar(225, 0.90, 0.5)
 
     def run(self):
         print "Camera thread started"
@@ -46,7 +49,7 @@ class CameraThread(threading.Thread):
                 cv.Resize(self.opencv_image, self.scaled_opencv_image, cv.CV_INTER_LINEAR)
                 cv.CvtColor(self.scaled_opencv_image, self.scaled_opencv_image, cv.CV_BGR2HSV)
 
-                cv.InRangeS(self.scaled_opencv_image, hsv_to_scalar(215, 0.50, 0.10), hsv_to_scalar(225, 0.90, 0.5), self.gray_opencv_image)
+                cv.InRangeS(self.scaled_opencv_image, self.lower_bound, self.upper_bound, self.gray_opencv_image)
                 cv.Smooth(self.gray_opencv_image, self.gray_opencv_image, cv.CV_GAUSSIAN, 9, 9)
                 cv.Canny(self.gray_opencv_image, self.gray_opencv_image, 50, 200, 3)
                 storage = cv.CreateMat(self.scaled_opencv_image.width, 1, cv.CV_32FC3)
