@@ -1,6 +1,0 @@
-Neem alle punten in een bepaalde treshhold van een kleine versie van een webcam snapshot en neem daar het middelpunt van.
-
-Voordeel: snel
-Nadeel: niet erg precies
-
-http://wiki.elphel.com/index.php?title=OpenCV_Tennis_balls_recognizing_tutorial
