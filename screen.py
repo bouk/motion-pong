@@ -258,17 +258,22 @@ class GameScreen(Screen):
 
 class RegularGameScreen(GameScreen):
 
+    def __init__(self, game):
+        GameScreen.__init__(self, game)
+        self.health_sprite = pygame.image.load('images/health.png')
+        self.health_sprite = self.health_sprite.convert_alpha()
+
     def draw(self, surface):
         GameScreen.draw(self, surface)
 
         # Draw UI
-        left_health_ratio = self.left_health / float(self.START_HEALTH)
-        left_health_width = left_health_ratio * 300
-        right_health_ratio = self.right_health / float(self.START_HEALTH)
-        right_health_width = right_health_ratio * 300
+        width = self.health_sprite.get_width()
+        height = self.health_sprite.get_height()
+        for h in range(self.left_health):
+            surface.blit(self.health_sprite, (h * width, self.game.resolution[1] - height))
 
-        surface.fill((255, 0, 0), (0, self.game.resolution[1] - 100, left_health_width, 40))
-        surface.fill((255, 0, 0), (self.game.resolution[0] - right_health_width, self.game.resolution[1] - 100, right_health_width, 40))
+        for h in range(self.right_health):
+            surface.blit(self.health_sprite, (self.game.resolution[0] - (1 + h) * width, self.game.resolution[1] - height))
 
     def health_changed(self):
         if self.left_health <= 0:
