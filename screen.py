@@ -8,6 +8,7 @@ import os
 
 import controller
 import entities
+import random
 import util
 
 class Screen(object):
@@ -34,15 +35,35 @@ class MenuScreen(Screen):
 
         def multiplayer(menu):
             menu.game.screen = RegularGameScreen(menu.game)
-            menu.game.screen.left_controller = controller.KeyboardController(menu.game.screen, menu.game.screen.left_paddle, K_w, K_s)
-            menu.game.screen.right_controller = controller.KeyboardController(menu.game.screen, menu.game.screen.right_paddle, K_i, K_k)
-            pygame.mixer.music.stop()
+            menu.game.screen.left_controller = controller.WebcamController(menu.game.screen, menu.game.screen.left_paddle, True)
+            menu.game.screen.right_controller = controller.WebcamController(menu.game.screen, menu.game.screen.right_paddle, False)
+
+            song = random.choice(('level1.mp3', 'level2.mp3', 'level3.mp3'))
+            pygame.mixer.music.load(os.path.join(game.MUSIC_DIR, song))
+            pygame.mixer.music.play(-1)
 
         def singleplayer(menu):
             menu.game.screen = RegularGameScreen(menu.game)
-            menu.game.screen.left_controller = controller.KeyboardController(menu.game.screen, menu.game.screen.left_paddle, K_w, K_s)
-            menu.game.screen.right_controller = controller.UndefeatableController(menu.game.screen)
-            pygame.mixer.music.stop()
+            menu.game.screen.left_controller = controller.WebcamController(menu.game.screen, menu.game.screen.left_paddle, True)
+            menu.game.screen.right_controller = controller.WebcamController(menu.game.screen, menu.game.screen.right_paddle, True)
+
+            song = random.choice(('level1.mp3', 'level2.mp3', 'level3.mp3'))
+            pygame.mixer.music.load(os.path.join(game.MUSIC_DIR, song))
+            pygame.mixer.music.play(-1)
+
+        # 2 ballen tegelijk
+        def hardcore(menu):
+            multiplayer(menu)
+            b = entities.Ball(menu.game.screen,
+                x=menu.game.screen.WIDTH / 2 - entities.Ball.RADIUS * 4,
+                y=menu.game.screen.HEIGHT / 2 - entities.Ball.RADIUS)
+            b.start = b2Vec2(-10, -10)
+            b.body.ApplyLinearImpulse(b.start, b.body.worldCenter)
+            b.body.ApplyLinearImpulse(b.start, b.body.worldCenter)
+            menu.game.screen.balls.append(b)
+
+            for ball in menu.game.screen.balls:
+                ball.body.fixtures[0].restitution = 1.1
 
         def quitgame(menu):
             menu.game.running = False
@@ -55,6 +76,10 @@ class MenuScreen(Screen):
         {
             'text': "2 Player",
             'command': multiplayer
+        },
+        {
+            'text': "HARDCORE 2 PLAYER",
+            'command': hardcore
         },
         {
             'text': "Quit",
@@ -170,8 +195,8 @@ class GameScreen(Screen):
         self.lower_border = self.world.CreateBody(position=(self.WIDTH / 2, self.HEIGHT + 1))
         self.lower_border.CreatePolygonFixture(box=(self.WIDTH / 2, 1), friction=0.0, restitution=1.0)
 
-        self.left_paddle = entities.Paddle(self, 0.1)
-        self.right_paddle = entities.Paddle(self, self.WIDTH - 0.11, mirror=True)
+        self.left_paddle = entities.Paddle(self, 0 + entities.Paddle.WIDTH / 2)
+        self.right_paddle = entities.Paddle(self, self.WIDTH - entities.Paddle.WIDTH, mirror=True)
 
         self.left_health = self.right_health = self.START_HEALTH
 
@@ -199,11 +224,11 @@ class GameScreen(Screen):
                 self.game.resolution),
             (0, 0))
 
-        for circle in self.game.camera_thread.circles:
-            pygame.draw.circle(surface,
-                (255, 255, 0, 128),
-                (circle[0], circle[1]),
-                circle[2])
+        # for circle in self.game.camera_thread.circles:
+        #     pygame.draw.circle(surface,
+        #         (255, 255, 0, 128),
+        #         (circle[0], circle[1]),
+        #         circle[2])
 
         self.left_paddle.draw(surface)
         self.right_paddle.draw(surface)

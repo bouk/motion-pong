@@ -2,6 +2,7 @@
 
 from Box2D import *
 import pygame
+import entities
 import cv
 
 class Controller(object):
@@ -41,32 +42,15 @@ class KeyboardController(Controller):
 
 class WebcamController(Controller):
 
-    def __init__(self, screen, paddle, bottom_hsv, top_hsv):
+    def __init__(self, screen, paddle, left_side):
         Controller.__init__(self, screen, paddle)
-        self.bottom_hsv = bottom_hsv
-        self.top_hsv = top_hsv
-
-        self.x_pos = 0
-        self.y_pos = 0
-        self.count = 0
+        self.left_side = left_side
 
     def tick(self, time_passed):
-        pass
-        # self.x_pos = 0
-        # self.y_pos = 0
-        # self.count = 0
+        candidates = filter(lambda circle: circle[0] <= self.screen.game.WEBCAM_RESOLUTION[0] / 2 if self.left_side else circle[0] > self.screen.game.WEBCAM_RESOLUTION[0] / 2, self.screen.game.camera_thread.circles)
 
-        # for x in xrange(self.screen.WEBCAM_SCALED_RESOLUTION[0]):
-        #     for y in xrange(self.screen.WEBCAM_SCALED_RESOLUTION[1]):
-        #         h, s, v, a = self.screen.scaled_camera_image.get_at((x, y)).hsva
-        #         if (self.bottom_hsv[0] < h < self.top_hsv[0]
-        #          and self.bottom_hsv[1] < s < self.top_hsv[1]
-        #          and self.bottom_hsv[2] < v < self.top_hsv[2]):
-        #             self.x_pos += x
-        #             self.y_pos += y
-        #             self.count += 1
+        if len(candidates):
+            first_circle = candidates[0]
+            y = (float(first_circle[1]) / self.screen.pixel_to_meter_ratio)
 
-        # if self.count:
-        #     self.x_pos = float(self.x_pos) / self.count / self.screen.WEBCAM_SCALED_RESOLUTION[0]
-        #     self.y_pos = float(self.y_pos) / self.count / self.screen.WEBCAM_SCALED_RESOLUTION[1]
-        #     # self.paddle.y = self.y_pos * self.screen.HEIGHT
+            self.paddle.body.transform = (b2Vec2(self.paddle.body.position[0], y), 0)

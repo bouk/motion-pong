@@ -31,8 +31,8 @@ class CameraThread(threading.Thread):
         self.gray_opencv_image = cv.CreateImage(cv.GetSize(self.scaled_opencv_image), 8, 1)
         self.recalc = 0
 
-        self.lower_bound = hsv_to_scalar(215, 0.50, 0.10)
-        self.upper_bound = hsv_to_scalar(225, 0.90, 0.5)
+        self.lower_bound = hsv_to_scalar(130, 0.20, 0.1)
+        self.upper_bound = hsv_to_scalar(160, 0.75, 0.9)
 
     def run(self):
         print "Camera thread started"
@@ -44,7 +44,7 @@ class CameraThread(threading.Thread):
 
             self.camera_image = cv_to_pygame_surface(self.opencv_image)
 
-            self.recalc = (self.recalc + 1) % 4
+            self.recalc = (self.recalc + 1) % 2
             if self.recalc == 0:
                 cv.Resize(self.opencv_image, self.scaled_opencv_image, cv.CV_INTER_LINEAR)
                 cv.CvtColor(self.scaled_opencv_image, self.scaled_opencv_image, cv.CV_BGR2HSV)

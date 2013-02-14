@@ -51,8 +51,8 @@ class Game(object):
             self.display.fill((255, 255, 255))
             self.screen.draw(self.display)
 
-            text = self.font.render(str(self.clock.get_fps()), True, (255, 255, 0))
-            self.display.blit(text, (100, 100))
+            # text = self.font.render(str(self.clock.get_fps()), True, (255, 255, 0))
+            # self.display.blit(text, (100, 100))
             pygame.display.update()
             self.prev_keys = pygame.key.get_pressed()
 

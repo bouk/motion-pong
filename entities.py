@@ -10,18 +10,25 @@ import util
 class Paddle(object):
 
     HEIGHT = 4.0
-    WIDTH = 0.2
+    WIDTH = 1.0
 
     def __init__(self, screen, x, mirror=False):
         self.screen = screen
         self.body = screen.world.CreateKinematicBody(position=(x, screen.HEIGHT / 2 - self.HEIGHT / 2))
-        self.mirror = mirror
-        self.body.CreatePolygonFixture(box=(self.WIDTH / 2, self.HEIGHT / 2), friction=0.1, restitution=1.1, density=1.0)
+        # self.body.CreatePolygonFixture(box=(self.WIDTH / 4, self.HEIGHT / 2), friction=0.1, restitution=1.1, density=1.0)
+        self.body.CreateFixture(shape=b2PolygonShape(vertices=[
+            (-self.WIDTH / 4, -self.HEIGHT / 2),
+            (-self.WIDTH / 2, 0),
+            (-self.WIDTH / 4, self.HEIGHT / 2),
+            (self.WIDTH / 4, self.HEIGHT / 2),
+            (self.WIDTH / 2, 0),
+            (self.WIDTH / 4, -self.HEIGHT / 2)]), friction=0.1, restitution=1.1, density=1.0)
 
-        self.image = pygame.image.load('images/paddle.png')
+        self.image = pygame.image.load('images/paddle2.png')
         self.image = self.image.convert_alpha()
         self.image = pygame.transform.smoothscale(self.image, (self.screen.translate(self.WIDTH), self.screen.translate(self.HEIGHT)))
-        if self.mirror:
+
+        if mirror:
             self.image = pygame.transform.flip(self.image, True, False)
 
     def draw(self, surface):
@@ -34,14 +41,15 @@ class Ball(object):
     STARTING_VELOCITY = b2Vec2(10, 10)
 
     def __init__(self, screen, x, y):
+        self.start = self.STARTING_VELOCITY
         self.screen = screen
         self.body = screen.world.CreateDynamicBody(position=(x, y), bullet=True)
         self.body.CreateCircleFixture(radius=self.RADIUS, friction=1.0, restitution=1.0, density=2.0)
-        self.body.ApplyLinearImpulse(self.STARTING_VELOCITY, self.body.worldCenter)
+        self.body.ApplyLinearImpulse(self.start, self.body.worldCenter)
         self.body.angularDamping = 1
         self.body.angularVelocity = 20
 
-        self.image = pygame.image.load('images/ball.png')
+        self.image = pygame.image.load('images/ball2.png')
         self.image = self.image.convert_alpha()
         self.image = pygame.transform.smoothscale(self.image, (self.screen.translate(self.RADIUS * 2), self.screen.translate(self.RADIUS * 2)))
         self.shift = 0.0
@@ -65,4 +73,4 @@ class Ball(object):
             self.body.transform = (b2Vec2(self.screen.WIDTH / 2, self.screen.HEIGHT / 2), 0)
             self.body.linearVelocity = b2Vec2(0, 0)
             self.body.angularVelocity = 0
-            self.body.ApplyLinearImpulse(self.STARTING_VELOCITY, self.body.worldCenter)
+            self.body.ApplyLinearImpulse(self.start, self.body.worldCenter)
