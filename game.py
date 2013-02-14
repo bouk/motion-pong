@@ -3,6 +3,7 @@
 import pygame
 from pygame.locals import *
 import os
+import sys
 
 import screen
 import util
@@ -17,13 +18,15 @@ class Game(object):
     MUSIC_DIR = 'music'
     IMAGE_DIR = 'images'
 
-    def __init__(self):
+    def __init__(self, arg):
         pygame.mixer.pre_init(44100, -16, 2, 2048)
         pygame.init()
         self.resolution = pygame.display.list_modes()[0]
         self.screen = None
         self.prev_keys = pygame.key.get_pressed()
         self.running = False
+
+        self.debug = len(arg) == 1 and arg[0][0].lower() == "d"
 
         # Initialise camera
         self.camera_thread = util.CameraThread(self.WEBCAM_RESOLUTION, self.WEBCAM_SCALE)
@@ -51,8 +54,10 @@ class Game(object):
             self.display.fill((255, 255, 255))
             self.screen.draw(self.display)
 
-            # text = self.font.render(str(self.clock.get_fps()), True, (255, 255, 0))
-            # self.display.blit(text, (100, 100))
+            if self.debug:
+                text = self.font.render(str(self.clock.get_fps()), True, (255, 255, 0))
+                self.display.blit(text, (100, 100))
+
             pygame.display.update()
             self.prev_keys = pygame.key.get_pressed()
 
@@ -64,5 +69,5 @@ class Game(object):
         return pygame.key.get_pressed()[keycode] and not self.prev_keys[keycode]
 
 if __name__ == '__main__':
-    game = Game()
+    game = Game(sys.argv[1:])
     game.main()

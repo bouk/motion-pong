@@ -224,11 +224,12 @@ class GameScreen(Screen):
                 self.game.resolution),
             (0, 0))
 
-        # for circle in self.game.camera_thread.circles:
-        #     pygame.draw.circle(surface,
-        #         (255, 255, 0, 128),
-        #         (circle[0], circle[1]),
-        #         circle[2])
+        if self.game.debug:
+            for circle in self.game.camera_thread.circles:
+                pygame.draw.circle(surface,
+                    (255, 255, 0, 128),
+                    (circle[0], circle[1]),
+                    circle[2])
 
         self.left_paddle.draw(surface)
         self.right_paddle.draw(surface)
