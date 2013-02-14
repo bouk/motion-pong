@@ -58,8 +58,8 @@ class MenuScreen(Screen):
                 x=menu.game.screen.WIDTH / 2 - entities.Ball.RADIUS * 4,
                 y=menu.game.screen.HEIGHT / 2 - entities.Ball.RADIUS)
             b.start = b2Vec2(-10, -10)
-            b.body.ApplyLinearImpulse(b.start, b.body.worldCenter)
-            b.body.ApplyLinearImpulse(b.start, b.body.worldCenter)
+            b.body.ApplyLinearImpulse(b.start, b.body.worldCenter, wake=True)
+            b.body.ApplyLinearImpulse(b.start, b.body.worldCenter, wake=True)
             menu.game.screen.balls.append(b)
 
             for ball in menu.game.screen.balls:

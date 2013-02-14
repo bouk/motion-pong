@@ -45,7 +45,7 @@ class Ball(object):
         self.screen = screen
         self.body = screen.world.CreateDynamicBody(position=(x, y), bullet=True)
         self.body.CreateCircleFixture(radius=self.RADIUS, friction=1.0, restitution=1.0, density=2.0)
-        self.body.ApplyLinearImpulse(self.start, self.body.worldCenter)
+        self.body.ApplyLinearImpulse(self.start, self.body.worldCenter, wake=True)
         self.body.angularDamping = 1
         self.body.angularVelocity = 20
 
@@ -73,4 +73,4 @@ class Ball(object):
             self.body.transform = (b2Vec2(self.screen.WIDTH / 2, self.screen.HEIGHT / 2), 0)
             self.body.linearVelocity = b2Vec2(0, 0)
             self.body.angularVelocity = 0
-            self.body.ApplyLinearImpulse(self.start, self.body.worldCenter)
+            self.body.ApplyLinearImpulse(self.start, self.body.worldCenter, wake=True)

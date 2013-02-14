@@ -16,7 +16,7 @@ class CameraThread(threading.Thread):
         self.circles = list()
         self.scale = scale
         self.scaled_resolution = map(lambda n: int(n * self.scale), self.resolution)
-        print "Camera resolution:", self.scaled_resolution
+
         self.lock = threading.Lock()
 
         self.camera = cv.CaptureFromCAM(-1)
@@ -35,7 +35,6 @@ class CameraThread(threading.Thread):
         self.upper_bound = hsv_to_scalar(160, 0.75, 0.9)
 
     def run(self):
-        print "Camera thread started"
         self.running = True
 
         while self.running:
