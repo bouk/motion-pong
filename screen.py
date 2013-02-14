@@ -51,7 +51,7 @@ class MenuScreen(Screen):
             pygame.mixer.music.load(os.path.join(game.MUSIC_DIR, song))
             pygame.mixer.music.play(-1)
 
-        # 2 ballen tegelijk
+        # 2 balls at the same time, more speed
         def hardcore(menu):
             multiplayer(menu)
             b = entities.Ball(menu.game.screen,
