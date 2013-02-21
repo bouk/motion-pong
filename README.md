@@ -8,7 +8,7 @@ It is an implementation of pong which uses the webcam to control the paddles
 * [OpenCV (compiled with some GIL locks removed)](https://github.com/boukevanderbijl/opencv)
 * [PyGame](http://www.pygame.org/news.html)
 * Python 2.7
-* 2 green green like these:
+* 2 green circles like these:
 
 ![paddles](http://i.imgur.com/s6F8KJD.jpg)
 
