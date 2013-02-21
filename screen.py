@@ -125,7 +125,7 @@ class MenuScreen(Screen):
             text = str(item['text'])
             if key == self.selected:
                 color =  (255, 255, 0)
-                text = '> ' + text + ' <'
+                text = '> %s <' % text
 
             text = self.font.render(text, True, color)
             position = (surface.get_width() / 2 - text.get_width() / 2, ypos + self.menu_backdrop.get_height() / 2 - text.get_height() / 2)
@@ -271,10 +271,10 @@ class RegularGameScreen(GameScreen):
         width = self.health_sprite.get_width()
         height = self.health_sprite.get_height()
         for h in range(self.left_health):
-            surface.blit(self.health_sprite, (h * width, self.game.resolution[1] - height))
+            surface.blit(self.health_sprite, (h * width, self.game.resolution[1] - height * 2))
 
         for h in range(self.right_health):
-            surface.blit(self.health_sprite, (self.game.resolution[0] - (1 + h) * width, self.game.resolution[1] - height))
+            surface.blit(self.health_sprite, (self.game.resolution[0] - (1 + h) * width, self.game.resolution[1] - height * 2))
 
     def health_changed(self):
         if self.left_health <= 0:
