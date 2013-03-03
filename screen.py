@@ -160,7 +160,7 @@ class TextScreen(Screen):
 
 class GameScreen(Screen):
     '''
-    This screen is manages the paddles, balls and webcam
+    This screen manages the paddles, balls and webcam
     '''
 
     # Official ping pong table size
